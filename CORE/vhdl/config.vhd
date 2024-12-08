@@ -76,7 +76,7 @@ type WHS_RECORD_ARRAY_TYPE is array (0 to WHS_RECORDS - 1) of WHS_RECORD_TYPE;
 
 constant SCR_WELCOME : string :=
 
-   "Gyruss V0.5.0\n" &
+   "Gaplus V0.5.0\n" &
    "-------------\n" &
    "\n" &
    "MiSTer port by Muse in 2024\n\n" &
@@ -85,10 +85,11 @@ constant SCR_WELCOME : string :=
    "Powered by MiSTer2MEGA65 Ver 2\n"     &
    "By sy2002 and MJoergen in 2024\n"     &
    "\n\n"                                 &
-   "Credits  : Press '5'\n"               & 
+   "Credits  : Press '5' or '6'\n"        &
+   "Service  : S\n"                       & 
    "Start    : Press '1' or '2'\n"        &
-   "Pause    : Press 'p'\n"               &
-   "Controls : Joystick / Arrows\n"       &
+   "Controls : Joystick /Arrows\n"        &
+   "Fire     : Joy button / A\n"          &
    "\n\n    Press Space to continue.\n"; 
    
 constant HELP_1 : string :=
@@ -183,8 +184,8 @@ constant SEL_CFG_FILE      : std_logic_vector(15 downto 0) := x"0101";
 
 -- START YOUR CONFIGURATION BELOW THIS LINE
 
-constant DIR_START         : string := "/arcade/gyruss";
-constant CFG_FILE          : string := "/arcade/gyruss/gyrcfg";
+constant DIR_START         : string := "/arcade/gaplus";
+constant CFG_FILE          : string := "/arcade/gaplus/gapcfg";
 
 --------------------------------------------------------------------------------------------------------------------
 -- General configuration settings: Reset, Pause, OSD behavior, Ascal, etc. (Selector 0x0110)
@@ -266,7 +267,7 @@ constant SEL_CORENAME      : std_logic_vector(15 downto 0) := x"0200";
 
 -- Currently this is only used in the debug console. Use the welcome screen and the
 -- help system to display the name and version of the core to the end user
-constant CORENAME          : string := "Gyruss V1";
+constant CORENAME          : string := "Gaplus V1";
 
 --------------------------------------------------------------------------------------------------------------------
 -- "Help" menu / Options menu  (Selectors 0x0300 .. 0x0312): DO NOT TOUCH
@@ -329,7 +330,7 @@ constant OPTM_DX           : natural := 23;
 constant OPTM_DY           : natural := 23;
 
 constant OPTM_ITEMS        : string :=
-   " Gyruss\n"              &
+   " Galaga Plus\n"         &
    "\n"                     &
    " Flip joystick ports\n" &
    "\n"                     &
@@ -379,23 +380,23 @@ constant OPTM_ITEMS        : string :=
    " Game Setup\n"          &
    "\n"                     & 
    " DSW A & B & C\n"       &
+   "    Lives A \n"         &
+   "    Lives B \n"         &
    "    Coin A - 1\n"       &
    "    Coin A - 2\n"       &
-   "    Coin A - 3\n"       &
-   "    Coin A - 4\n"       &
+   "    Demo Sounds\n"      &
+   "    Unused\n"           &
    "    Coin B - 1\n"       &
    "    Coin B - 2\n"       &
-   "    Coin B - 3\n"       &
-   "    Coin B - 4\n"       &
-   "    Lives A\n"          &
-   "    Lives B\n"          &
-   "    Cabinet\n"          &
-   "    Bonus Life \n"      &
+   "    Service Mode\n"     &
    "    Difficulty A\n"     &
    "    Difficulty B\n"     &
    "    Difficulty C\n"     &
-   "    Demo Sounds\n"      &
-   "    Demo Music\n"       &
+   "    Round Advance\n"    &
+   "    Bonus Life A\n"     &
+   "    Bonus Life B\n"     &
+   "    Bonus Life C\n"     &
+   "    Cabinet\n"          &
    "\n"                     &
    " Back to main menu\n"   &
    "\n"                     &
@@ -412,46 +413,46 @@ constant OPTM_G_HDMI           : integer := 3;
 constant OPTM_G_ROT90          : integer := 4;
 constant OPTM_G_CRT            : integer := 5;
 -- Dipswitch A
-constant OPTM_G_GYR_DSWA0      : integer := 6;
-constant OPTM_G_GYR_DSWA1      : integer := 7;
-constant OPTM_G_GYR_DSWA2      : integer := 8;
-constant OPTM_G_GYR_DSWA3      : integer := 9;
-constant OPTM_G_GYR_DSWA4      : integer := 10;
-constant OPTM_G_GYR_DSWA5      : integer := 11;
-constant OPTM_G_GYR_DSWA6      : integer := 12;
-constant OPTM_G_GYR_DSWA7      : integer := 13;
+constant OPTM_G_GAP_DSWA0      : integer := 6;
+constant OPTM_G_GAP_DSWA1      : integer := 7;
+constant OPTM_G_GAP_DSWA2      : integer := 8;
+constant OPTM_G_GAP_DSWA3      : integer := 9;
+constant OPTM_G_GAP_DSWA4      : integer := 10;
+constant OPTM_G_GAP_DSWA5      : integer := 11;
+constant OPTM_G_GAP_DSWA6      : integer := 12;
+constant OPTM_G_GAP_DSWA7      : integer := 13;
 -- Dipswitch B
-constant OPTM_G_GYR_DSWB0      : integer := 14;
-constant OPTM_G_GYR_DSWB1      : integer := 15;
-constant OPTM_G_GYR_DSWB2      : integer := 16;
-constant OPTM_G_GYR_DSWB3      : integer := 17;
-constant OPTM_G_GYR_DSWB4      : integer := 18;
-constant OPTM_G_GYR_DSWB5      : integer := 19;
-constant OPTM_G_GYR_DSWB6      : integer := 20;
-constant OPTM_G_GYR_DSWB7      : integer := 21;
+constant OPTM_G_GAP_DSWB0      : integer := 14;
+constant OPTM_G_GAP_DSWB1      : integer := 15;
+constant OPTM_G_GAP_DSWB2      : integer := 16;
+constant OPTM_G_GAP_DSWB3      : integer := 17;
+constant OPTM_G_GAP_DSWB4      : integer := 18;
+constant OPTM_G_GAP_DSWB5      : integer := 19;
+constant OPTM_G_GAP_DSWB6      : integer := 20;
+constant OPTM_G_GAP_DSWB7      : integer := 21;
 -- Dipswitch C
-constant OPTM_G_GYR_DSWC0      : integer := 22;
-constant OPTM_G_GYR_DSWC1      : integer := 23;
-constant OPTM_G_GYR_DSWC2      : integer := 24;
-constant OPTM_G_GYR_DSWC3      : integer := 25;
-constant OPTM_G_GYR_DSWC4      : integer := 26;
-constant OPTM_G_GYR_DSWC5      : integer := 27;
-constant OPTM_G_GYR_DSWC6      : integer := 28;
-constant OPTM_G_GYR_DSWC7      : integer := 29;
+constant OPTM_G_GAP_DSWC0      : integer := 22;
+constant OPTM_G_GAP_DSWC1      : integer := 23;
+constant OPTM_G_GAP_DSWC2      : integer := 24;
+constant OPTM_G_GAP_DSWC3      : integer := 25;
+constant OPTM_G_GAP_DSWC4      : integer := 26;
+constant OPTM_G_GAP_DSWC5      : integer := 27;
+constant OPTM_G_GAP_DSWC6      : integer := 28;
+constant OPTM_G_GAP_DSWC7      : integer := 29;
 
 constant OPTM_G_VGA_MODES      : integer := 30;
 constant OPTM_G_FLIPJ          : integer := 31;
 constant OPTM_G_SOFTW          : integer := 32;
 
 -- Shift screen vertical/horizontal offsets
-constant OPTM_G_GYRUSS_H1      : integer := 33;        
-constant OPTM_G_GYRUSS_H2      : integer := 34;    
-constant OPTM_G_GYRUSS_H4      : integer := 35;    
-constant OPTM_G_GYRUSS_H8      : integer := 36;    
-constant OPTM_G_GYRUSS_H16     : integer := 37;
-constant OPTM_G_GYRUSS_V1      : integer := 38;        
-constant OPTM_G_GYRUSS_V2      : integer := 39;    
-constant OPTM_G_GYRUSS_V4      : integer := 40; 
+constant OPTM_G_GAPUSS_H1      : integer := 33;        
+constant OPTM_G_GAPUSS_H2      : integer := 34;    
+constant OPTM_G_GAPUSS_H4      : integer := 35;    
+constant OPTM_G_GAPUSS_H8      : integer := 36;    
+constant OPTM_G_GAPUSS_H16     : integer := 37;
+constant OPTM_G_GAPUSS_V1      : integer := 38;        
+constant OPTM_G_GAPUSS_V2      : integer := 39;    
+constant OPTM_G_GAPUSS_V4      : integer := 40; 
 
 -- !!! DO NOT TOUCH !!!
 type OPTM_GTYPE is array (0 to OPTM_SIZE - 1) of integer range 0 to 2**OPTM_GTC- 1;
@@ -490,42 +491,42 @@ constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,     
                                              OPTM_G_SUBMENU, 
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,                            
                                              OPTM_G_LINE,                                              
-                                             OPTM_G_GYRUSS_H1  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYRUSS_H2  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYRUSS_H4  + OPTM_G_SINGLESEL, 
-                                             OPTM_G_GYRUSS_H8  + OPTM_G_SINGLESEL,
-                                             OPTM_G_GYRUSS_H16 + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAPUSS_H1  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAPUSS_H2  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAPUSS_H4  + OPTM_G_SINGLESEL, 
+                                             OPTM_G_GAPUSS_H8  + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAPUSS_H16 + OPTM_G_SINGLESEL,
                                              OPTM_G_LINE,                                               -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                             -- Close submenu / back to main menu                           
                                              OPTM_G_SUBMENU,                                           
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,                            
                                              OPTM_G_LINE,                                              
-                                             OPTM_G_GYRUSS_v1  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYRUSS_v2  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYRUSS_v4  + OPTM_G_SINGLESEL, 
+                                             OPTM_G_GAPUSS_v1  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAPUSS_v2  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAPUSS_v4  + OPTM_G_SINGLESEL, 
                                              OPTM_G_LINE,                                               -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                             -- Close submenu / back to main menu
                                              OPTM_G_LINE,                                              
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,                          
                                              OPTM_G_LINE,                                             
                                              OPTM_G_SUBMENU,                                                                                       
-                                             OPTM_G_GYR_DSWA0  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYR_DSWA1  + OPTM_G_SINGLESEL,                 
-                                             OPTM_G_GYR_DSWA2  + OPTM_G_SINGLESEL,                   
-                                             OPTM_G_GYR_DSWA3  + OPTM_G_SINGLESEL,                    
-                                             OPTM_G_GYR_DSWA4  + OPTM_G_SINGLESEL,                 
-                                             OPTM_G_GYR_DSWA5  + OPTM_G_SINGLESEL,                
-                                             OPTM_G_GYR_DSWA6  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GYR_DSWA7  + OPTM_G_SINGLESEL,              
-                                             OPTM_G_GYR_DSWB0  + OPTM_G_SINGLESEL,                   
-                                             OPTM_G_GYR_DSWB1  + OPTM_G_SINGLESEL,                   
-                                             OPTM_G_GYR_DSWB2  + OPTM_G_SINGLESEL + OPTM_G_STDSEL,                   
-                                             OPTM_G_GYR_DSWB3  + OPTM_G_SINGLESEL,                   
-                                             OPTM_G_GYR_DSWB4  + OPTM_G_SINGLESEL,
-                                             OPTM_G_GYR_DSWB5  + OPTM_G_SINGLESEL,
-                                             OPTM_G_GYR_DSWB6  + OPTM_G_SINGLESEL + OPTM_G_STDSEL,  
-                                             OPTM_G_GYR_DSWB7  + OPTM_G_SINGLESEL + OPTM_G_STDSEL,                  
-                                             OPTM_G_GYR_DSWC0  + OPTM_G_SINGLESEL + OPTM_G_STDSEL,                                         
+                                             OPTM_G_GAP_DSWA0  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_DSWA1  + OPTM_G_SINGLESEL,                 
+                                             OPTM_G_GAP_DSWA2  + OPTM_G_SINGLESEL,                   
+                                             OPTM_G_GAP_DSWA3  + OPTM_G_SINGLESEL,                    
+                                             OPTM_G_GAP_DSWA4  + OPTM_G_SINGLESEL,                 
+                                             OPTM_G_GAP_DSWA5  + OPTM_G_SINGLESEL,                
+                                             OPTM_G_GAP_DSWA6  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_DSWA7  + OPTM_G_SINGLESEL,              
+                                             OPTM_G_GAP_DSWB0  + OPTM_G_SINGLESEL,                   
+                                             OPTM_G_GAP_DSWB1  + OPTM_G_SINGLESEL,                   
+                                             OPTM_G_GAP_DSWB2  + OPTM_G_SINGLESEL,                   
+                                             OPTM_G_GAP_DSWB3  + OPTM_G_SINGLESEL,                   
+                                             OPTM_G_GAP_DSWB4  + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAP_DSWB5  + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAP_DSWB6  + OPTM_G_SINGLESEL,  
+                                             OPTM_G_GAP_DSWB7  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_DSWC0  + OPTM_G_SINGLESEL,                                         
                                              OPTM_G_LINE,                                             -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                           -- Close submenu / back to main menu
 											 OPTM_G_LINE,                                             -- Line

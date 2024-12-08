@@ -106,6 +106,9 @@ port (
    -- Share clock and reset with the framework
    main_clk_o              : out std_logic;              -- CORE's 54 MHz clock
    main_rst_o              : out std_logic;              -- CORE's reset, synchronized
+   
+   clk_24_o                : out std_logic;
+   clk_24_rst_o            : out std_logic;
 
    -- M2M's reset manager provides 2 signals:
    --    m2m:   Reset the whole machine: Core and Framework
@@ -226,14 +229,17 @@ architecture synthesis of MEGA65_Core is
 
 signal main_clk               : std_logic;               -- Core main clock
 signal main_rst               : std_logic;
+signal clk_24                 : std_logic;      
+signal clk_24_rst             : std_logic; 
 
 ---------------------------------------------------------------------------------------------
 -- main_clk (MiSTer core's clock)
 ---------------------------------------------------------------------------------------------
 
-signal main_video_red      : std_logic_vector(2 downto 0);   
-signal main_video_green    : std_logic_vector(2 downto 0);
-signal main_video_blue     : std_logic_vector(1 downto 0);
+signal main_service        : std_logic;
+signal main_video_red      : std_logic_vector(3 downto 0);   
+signal main_video_green    : std_logic_vector(3 downto 0);
+signal main_video_blue     : std_logic_vector(3 downto 0);
 signal main_video_vs       : std_logic;
 signal main_video_hs       : std_logic;
 signal main_video_hblank   : std_logic;
@@ -257,36 +263,35 @@ constant C_MENU_VGA_STD       : natural := 20;
 constant C_MENU_VGA_15KHZHSVS : natural := 24;
 constant C_MENU_VGA_15KHZCS   : natural := 25;
 
--- Midway DIPs
 -- Dipswitch A
-constant C_MENU_DSWA_0        : natural := 52; -- Coin A
-constant C_MENU_DSWA_1        : natural := 53; -- Coin A
-constant C_MENU_DSWA_2        : natural := 54; -- Coin A
-constant C_MENU_DSWA_3        : natural := 55; -- Coin A
-constant C_MENU_DSWA_4        : natural := 56; -- Coin B
-constant C_MENU_DSWA_5        : natural := 57; -- Coin B
+constant C_MENU_DSWA_0        : natural := 52; -- Lives A
+constant C_MENU_DSWA_1        : natural := 53; -- Lives B
+constant C_MENU_DSWA_2        : natural := 54; -- Coin A 1
+constant C_MENU_DSWA_3        : natural := 55; -- Coin A 2
+constant C_MENU_DSWA_4        : natural := 56; -- Demo Sounds
+constant C_MENU_DSWA_5        : natural := 57; -- Unused
 constant C_MENU_DSWA_6        : natural := 58; -- Coin B
 constant C_MENU_DSWA_7        : natural := 59; -- Coin B
 
 -- Dipswitch B
-constant C_MENU_DSWB_0        : natural := 60; -- Lives A
-constant C_MENU_DSWB_1        : natural := 61; -- Lives B
-constant C_MENU_DSWB_2        : natural := 62; -- Cabinet
-constant C_MENU_DSWB_3        : natural := 63; -- Bonus Life
-constant C_MENU_DSWB_4        : natural := 64; -- Difficulty A
-constant C_MENU_DSWB_5        : natural := 65; -- Difficulty B
-constant C_MENU_DSWB_6        : natural := 66; -- Difficulty C
-constant C_MENU_DSWB_7        : natural := 67; -- Demo Sounds
+constant C_MENU_DSWB_0        : natural := 60; -- Service Mode
+constant C_MENU_DSWB_1        : natural := 61; -- Difficulty A
+constant C_MENU_DSWB_2        : natural := 62; -- Difficulty B
+constant C_MENU_DSWB_3        : natural := 63; -- Difficulty C
+constant C_MENU_DSWB_4        : natural := 64; -- Round Advance
+constant C_MENU_DSWB_5        : natural := 65; -- Bonus Life
+constant C_MENU_DSWB_6        : natural := 66; -- Bonus Life
+constant C_MENU_DSWB_7        : natural := 67; -- Bonus Life
 
 -- Dipswitch C
-constant C_MENU_DSWC_0        : natural := 68; -- Demo Music
+constant C_MENU_DSWC_0        : natural := 68; -- not used
 constant C_MENU_DSWC_1        : natural := 69; -- not used
 constant C_MENU_DSWC_2        : natural := 70; -- not used
 constant C_MENU_DSWC_3        : natural := 71; -- not used
 constant C_MENU_DSWC_4        : natural := 72; -- not used
 constant C_MENU_DSWC_5        : natural := 73; -- not used
-constant C_MENU_DSWC_6        : natural := 74; -- not used
-constant C_MENU_DSWC_7        : natural := 75; -- not used
+constant C_MENU_DSWC_6        : natural := 74; -- Service button
+constant C_MENU_DSWC_7        : natural := 75; -- Cabinet
 
 
 signal div          : std_logic_vector(2 downto 0);
@@ -337,7 +342,7 @@ constant C_320_288_50 : video_modes_t := (
    ASPECT      => "01",       -- aspect ratio: 01=4:3, 10=16:9: "01" for SVGA
    PIXEL_REP   => '0',        -- no pixel repetition
    H_PIXELS    => 320,        -- horizontal display width in pixels
-   V_PIXELS    => 256,        -- vertical display width in rows
+   V_PIXELS    => 288,        -- vertical display width in rows
    H_PULSE     => 28,         -- horizontal sync pulse width in pixels
    H_BP        => 28,         -- horizontal back porch width in pixels
    H_FP        => 8,          -- horizontal front porch width in pixels
@@ -363,8 +368,11 @@ begin
    clk_gen : entity work.clk
       port map (
          sys_clk_i         => clk_i,           -- expects 100 MHz
-         main_clk_o        => main_clk,        -- CORE's 54 MHz clock
-         main_rst_o        => main_rst         -- CORE's reset, synchronized
+         main_clk_o        => main_clk,        
+         main_rst_o        => main_rst,        -- CORE's reset, synchronized
+         
+         clk_24_o          => clk_24,        
+         clk_24_rst_o      => clk_24_rst         
       ); -- clk_gen
       
    i_cdc_qnice2video : xpm_cdc_array_single
@@ -374,43 +382,47 @@ begin
       port map (
          src_clk           => qnice_clk_i,
          src_in(0)         => qnice_osm_control_i(C_MENU_ROT90),
-         dest_clk          => main_clk,
+         dest_clk          => clk_24,
          dest_out(0)       => video_rot90_flag
       ); -- i_cdc_qnice2video
+      
 
    main_clk_o   <= main_clk;
    main_rst_o   <= main_rst;
-   video_clk_o  <= main_clk;
-   video_rst_o  <= main_rst;
+   video_clk_o  <= clk_24;
+   video_rst_o  <= clk_24_rst;
+   clk_24_o     <= clk_24;
+   clk_24_rst_o <= clk_24_rst;
+   
  
    main_qnice_dev_id_i <= qnice_dev_id_i;
    
-   dsw_a_i <= main_osm_control_i(C_MENU_DSWA_7) &
-              main_osm_control_i(C_MENU_DSWA_6) &
-              main_osm_control_i(C_MENU_DSWA_5) &
-              main_osm_control_i(C_MENU_DSWA_4) &
-              main_osm_control_i(C_MENU_DSWA_3) &
-              main_osm_control_i(C_MENU_DSWA_2) &
-              main_osm_control_i(C_MENU_DSWA_1) &
-              main_osm_control_i(C_MENU_DSWA_0);  
+   dsw_a_i <= main_osm_control_i(C_MENU_DSWA_7) & -- Life A
+              main_osm_control_i(C_MENU_DSWA_6) & -- Life B
+              main_osm_control_i(C_MENU_DSWA_5) & -- Coin A 1
+              main_osm_control_i(C_MENU_DSWA_4) & -- Coin A 2
+              main_osm_control_i(C_MENU_DSWA_3) & -- Demo Sounds
+                                            '0' & -- Unused
+              main_osm_control_i(C_MENU_DSWA_1) & -- Coin B 1
+              main_osm_control_i(C_MENU_DSWA_0);  -- Coin B 2
    
-   dsw_b_i <= main_osm_control_i(C_MENU_DSWB_7) &
-              main_osm_control_i(C_MENU_DSWB_6) &
-              main_osm_control_i(C_MENU_DSWB_5) &
-              main_osm_control_i(C_MENU_DSWB_4) &
-              main_osm_control_i(C_MENU_DSWB_3) &
-              main_osm_control_i(C_MENU_DSWB_2) &
-              main_osm_control_i(C_MENU_DSWB_1) &
-              main_osm_control_i(C_MENU_DSWB_0);
+   dsw_b_i <= main_osm_control_i(C_MENU_DSWB_7) & -- Service Mode
+              main_osm_control_i(C_MENU_DSWB_6) & -- Difficulty A
+              main_osm_control_i(C_MENU_DSWB_5) & -- Difficulty B
+              main_osm_control_i(C_MENU_DSWB_4) & -- Difficulty C
+              main_osm_control_i(C_MENU_DSWB_3) & -- Round Advance
+              main_osm_control_i(C_MENU_DSWB_2) & -- Bonus A
+              main_osm_control_i(C_MENU_DSWB_1) & -- Bonus B
+              main_osm_control_i(C_MENU_DSWB_0);  -- Bonus C
               
-   dsw_c_i <= main_osm_control_i(C_MENU_DSWC_7) &
-              main_osm_control_i(C_MENU_DSWC_6) &
-              main_osm_control_i(C_MENU_DSWC_5) &
-              main_osm_control_i(C_MENU_DSWC_4) &
-              main_osm_control_i(C_MENU_DSWC_3) &
-              main_osm_control_i(C_MENU_DSWC_2) &
-              main_osm_control_i(C_MENU_DSWC_1) &
-              main_osm_control_i(C_MENU_DSWC_0);
+   dsw_c_i <=                               '0' &
+                                            '0' &
+                                            '0' &
+                                            '0' &
+                                            '0' &
+                                            '0' &
+              main_service                      &     -- Service Button
+              not main_osm_control_i(C_MENU_DSWC_0);  -- Cabinet
   
   
    ---------------------------------------------------------------------------------------------
@@ -482,27 +494,29 @@ begin
          dsw_a_i              => dsw_a_i,
          dsw_b_i              => dsw_b_i,
          dsw_c_i              => dsw_c_i,
+         service_o            => main_service,
          
          qnice_dev_id_o       => main_qnice_dev_id_i
          
       ); -- i_main
-    
-    process (main_clk) -- 49 MHz
+
+    process (clk_24)
     begin
-        if rising_edge(main_clk) then
-        
+        video_ce_ovl_o <= '0';
+        if rising_edge(clk_24) then
             old_clk <= ce_vid;
             ce_pix  <= old_clk and (not ce_vid);
-            
-            video_ce_ovl_o <= '0';
-            div <= std_logic_vector(unsigned(div) + 1);
-            if div(0) = '1' then
-               video_ce_ovl_o <= '1'; -- 24 MHz
-            end if;
+            video_ce_ovl_o <= '1';                  -- OSM clock.
+        end if;
+    end process;
 
-            video_red   <= main_video_red   & main_video_red   & main_video_red(2 downto 1);
-            video_green <= main_video_green & main_video_green & main_video_green(2 downto 1);
-            video_blue  <= main_video_blue  & main_video_blue  & main_video_blue & main_video_blue;
+    process (main_clk) -- 49 MHz
+    begin
+        
+        if rising_edge(main_clk) then
+            video_red   <= main_video_red   & main_video_red;
+            video_green <= main_video_green & main_video_green;
+            video_blue  <= main_video_blue  & main_video_blue;
      
             video_hs     <= not main_video_hs;
             video_vs     <= not main_video_vs;
@@ -538,7 +552,7 @@ begin
     i_screen_rotate : entity work.screen_rotate
        port map (
           --inputs
-          CLK_VIDEO      => main_clk,
+          CLK_VIDEO      => clk_24,
           CE_PIXEL       => ce_pix,
           VGA_R          => video_red,
           VGA_G          => video_green,
@@ -553,7 +567,7 @@ begin
           FB_LL          => '0',
           -- output to screen_buffer
           video_rotated  => open,
-          DDRAM_CLK      => main_clk,
+          DDRAM_CLK      => clk_24,
           DDRAM_BUSY     => '0',
           DDRAM_BURSTCNT => open,
           DDRAM_ADDR     => ddram_addr,
@@ -575,11 +589,11 @@ begin
       )
       
       port map (
-         ddram_clk_i      => main_clk,
+         ddram_clk_i      => clk_24,
          ddram_addr_i     => ddram_addr(14 downto 0) & ddram_be(7),
          ddram_din_i      => ddram_data(31 downto 0),
          ddram_we_i       => ddram_we,
-         video_clk_i      => main_clk,
+         video_clk_i      => clk_24,
          video_ce_i       => ce_pix,
          video_red_o      => video_rot_red,
          video_green_o    => video_rot_green,
@@ -660,115 +674,126 @@ begin
       qnice_dn_data    <= (others => '0');
 
       case qnice_dev_id_i is
-      
-        -- 000 0000000000000
-        -- 000 1111111111111
-        when C_DEV_GYR_CPU_ROM1 =>
+   
+        -- 00000-01FFF MAIN0
+        when C_DEV_GALP_CPU_ROM1 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0000" & qnice_dev_addr_i(12 downto 0); -- 0x0000 - 0x1FFF gyrussk.1
+              qnice_dn_addr(17 downto 0) <= "00000" & qnice_dev_addr_i(12 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-              
-        -- 001 0000000000000
-        -- 001 1111111111111
-        when C_DEV_GYR_CPU_ROM2 =>
+        -- 02000-03FFF MAIN1
+        when C_DEV_GALP_CPU_ROM2 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0001" & qnice_dev_addr_i(12 downto 0); -- 0x2000 - 0x3FFF gyrussk.2
+              qnice_dn_addr(17 downto 0) <= "00001" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);     
+        -- 04000-05FFF MAIN2
+        when C_DEV_GALP_CPU_ROM3 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "00010" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+              
+       -- 06000-07FFF SND
+        when C_DEV_GALP_SUB2_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "00011" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);       
+
+        -- 08000-09FFF SUB0
+        when C_DEV_GALP_SUB_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "00100" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+        
+        -- 0A000-0BFFF SUB1
+        when C_DEV_GALP_SUB_ROM2 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "00101" & qnice_dev_addr_i(12 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);     
         
-        -- 010 0000000000000
-        -- 010 1111111111111  
-        when C_DEV_GYR_CPU_ROM3 =>
+        -- 0C000-0DFFF SUB2
+        when C_DEV_GALP_SUB_ROM3 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0010" & qnice_dev_addr_i(12 downto 0); -- 0x4000 - 0x5FFF gyrussk.3
+              qnice_dn_addr(17 downto 0) <= "00110" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+         
+        -- 0E000-0FFFF BGCH 
+        when C_DEV_GALP_GFX1_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "00111" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+              
+        -- 10000-11FFF SPCH0
+        when C_DEV_GALP_GFX2_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "01000" & qnice_dev_addr_i(12 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
         
-        -- 011 0000000000000
-        -- 011 1111111111111   
-        when C_DEV_GRY_SUB =>
+        -- 12000-13FFF SPCH1      
+        when C_DEV_GALP_GFX2_ROM2 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0011" & qnice_dev_addr_i(12 downto 0); -- 0x6000 - 0x7FFF gyrussk.9
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0);            
-       
-       -- 100 0000000000000
-       -- 100 1111111111111
-       when C_DEV_GRY_TILES =>
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0100" & qnice_dev_addr_i(12 downto 0); -- 0x8000 - 0x9FFF gyrussk.4
+              qnice_dn_addr(17 downto 0) <= "01001" & qnice_dev_addr_i(12 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
         
-        
-       -- 101 0000000000000
-       -- 101 1111111111111 
-       when C_DEV_GRY_SPR1 =>
+        -- 14000-15FFF SPCH2      
+        when C_DEV_GALP_GFX2_ROM3 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0101" & qnice_dev_addr_i(12 downto 0); -- 0xA000 - 0xBFFF gyrussk.5
+              qnice_dn_addr(17 downto 0) <= "01010" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+        
+        -- 16000-17FFF SPCH3      
+        when C_DEV_GALP_GFX2_ROM4 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "01011" & qnice_dev_addr_i(12 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+              
+        -- 18000-1FFFF BANG! PCM
+        when C_DEV_GALP_BANG =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "011" & qnice_dev_addr_i(14 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+        
+        -- 20000-201FF CLUT1L
+        when C_DEV_GALP_PROM_SPRL =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "100000000" & qnice_dev_addr_i(8 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+              
+        -- 20200-203FF CLUT1H
+        when C_DEV_GALP_PROM_SPRH =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "100000001" & qnice_dev_addr_i(8 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-       
-       -- 110 0000000000000
-       -- 110 1111111111111
-       when C_DEV_GRY_SPR2 =>
+              
+        -- 20400-204FF CLUT0 
+        when C_DEV_GALP_PROM_CHAR =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0110" & qnice_dev_addr_i(12 downto 0); -- 0xC000 - 0xDFFF gyrussk.6
+              qnice_dn_addr(17 downto 0) <= "1000000100" & qnice_dev_addr_i(7 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-       
-       -- 111 0000000000000
-       -- 111 1111111111111
-       when C_DEV_GRY_SPR3 =>
+              
+        -- 20500-205FF PALET_R    
+        when C_DEV_GALP_PROM_RED =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "0111" & qnice_dev_addr_i(12 downto 0); -- 0xE000 - 0xFFFF gyrussk.7
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0);    
-      
-       -- 1000 0000000000000
-       -- 1000 1111111111111
-       when C_DEV_GRY_SPR4 =>
+              qnice_dn_addr(17 downto 0) <= "1000000101" & qnice_dev_addr_i(7 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+           
+        -- 20600-206FF PALET_G   
+        when C_DEV_GALP_PROM_GREEN =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "1000" & qnice_dev_addr_i(12 downto 0); -- 0x10000 - 0x11FFF gyrussk.8
+              qnice_dn_addr(17 downto 0) <= "1000000110" & qnice_dev_addr_i(7 downto 0);
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+        -- 20700-207FF PALET_B
+        when C_DEV_GALP_PROM_BLUE =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr(17 downto 0) <= "1000000111" & qnice_dev_addr_i(7 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
-       
- 
-      -- 1001 0000000000000
-      -- 1001 1111111111111    
-      when C_DEV_GRY_ROM1_AU1 =>
+         
+        -- 20800-208FF WAVE    
+        when C_DEV_GALP_PROM_WAVE =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "1001" & qnice_dev_addr_i(12 downto 0); -- 0x12000 - 0x13FFF = eprom_10
+              qnice_dn_addr(17 downto 0) <= "1000001000" & qnice_dev_addr_i(7 downto 0);
               qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
-       
-      -- 1010 0000000000000
-      -- 1010 1111111111111
-      when C_DEV_GRY_ROM2_AU1 =>
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "1010" & qnice_dev_addr_i(12 downto 0); -- 0x14000 - 0x15FFF = eprom_11
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
-                      
-      -- 10110 000000000000
-      -- 10110 111111111111
-      when C_DEV_GRY_ROM1_AU2 =>
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "10110" & qnice_dev_addr_i(11 downto 0); -- 0x16000 - 0x16FFF = eprom_12
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0);  
-             
-      -- 101110000 00000000
-      -- 101110000 11111111    
-      when C_DEV_GRY_SLT => -- sprite lookup
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "101110000" & qnice_dev_addr_i(7 downto 0);   -- 0x17100 - 0x171FF = eprom_13
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0);   
-               
-      -- 101110001 00000000
-      -- 101110001 11111111                  
-      when C_DEV_GRY_TLT => -- character lookup
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "101110001" & qnice_dev_addr_i(7 downto 0); -- 0x17000 - 0x170FF = eprom_14
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+              
 
-      -- 101110010000 00000
-      -- 101110010000 11111
-      when C_DEV_GRY_PAL => -- Palette
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr(16 downto 0) <= "101110010" & qnice_dev_addr_i(7 downto 0); -- 0x17200 - 0x1721F = eprom_15
-              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-    
-   
          when others => null;
       end case;
       
