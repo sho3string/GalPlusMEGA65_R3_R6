@@ -68,9 +68,6 @@ entity main is
       dsw_a_i                 : in  std_logic_vector(7 downto 0);
       dsw_b_i                 : in  std_logic_vector(7 downto 0);
       dsw_c_i                 : in  std_logic_vector(7 downto 0);
-      -- Service Button
-      service_o               : out  std_logic;
-
       dn_clk_i                : in  std_logic;
       dn_addr_i               : in  std_logic_vector(24 downto 0);
       dn_data_i               : in  std_logic_vector(7 downto 0);
@@ -116,9 +113,9 @@ constant m65_left_crsr   : integer := 74; -- cursor left
 constant m65_horz_crsr   : integer := 2;  -- means cursor right in C64 terminology
 constant m65_up_crsr     : integer := 73; -- cursor up
 constant m65_vert_crsr   : integer := 7;  -- means cursor down in C64 terminology
+constant m65_help        : integer := 67; --Help key
 
-constant C_MENU_FLIP     : natural := 9;
-
+constant C_MENU_FLIP       : natural := 9;
 constant C_MENU_GAPLUS_H1  : integer := 32;
 constant C_MENU_GAPLUS_H2  : integer := 33;
 constant C_MENU_GAPLUS_H4  : integer := 34;
@@ -128,10 +125,7 @@ constant C_MENU_GAPLUS_V1  : integer := 42;
 constant C_MENU_GAPLUS_V2  : integer := 43;
 constant C_MENU_GAPLUS_V4  : integer := 44;
 
-constant m65_help        : integer := 67; --Help key
-
 -- Game inputs
-signal m_service : std_logic := keyboard_n(m65_s);
 signal m_start2  : std_logic := not keyboard_n(m65_2);
 signal m_start1  : std_logic := not keyboard_n(m65_1);
 signal m_coin1   : std_logic := not keyboard_n(m65_5);
@@ -147,18 +141,12 @@ signal m_up2     : std_logic := not joy_2_up_n_i or not keyboard_n(m65_up_crsr);
 signal m_right2  : std_logic := not joy_2_right_n_i or not keyboard_n(m65_horz_crsr);
 signal m_left2   : std_logic := not joy_2_left_n_i or not keyboard_n(m65_left_crsr);
 
--- Game inputs
 signal INP0      : std_logic_vector(4 downto 0) := m_trig11 & m_left1 & m_down1 & m_right1 & m_up1;
 signal INP1      : std_logic_vector(4 downto 0) := m_trig21 & m_left2 & m_down2 & m_right2 & m_up2;
 signal INP2      : std_logic_vector(2 downto 0) := (m_coin1 or m_coin2) & m_start2 & m_start1;
 
-
 signal oSND      : std_logic_vector(7 downto 0);
 signal AOUT      : std_logic_vector(15 downto 0);
-
-signal hcnt      : std_logic_vector (8 downto 0) := (others => '0'); 
-signal vcnt      : std_logic_vector (8 downto 0) := (others => '0');
-
 
 begin
 
@@ -173,9 +161,7 @@ begin
      -- video
     PCLK_EN     <=  video_ce_o;
     oRGB        <=  video_blue_o & video_green_o & video_red_o;
-    
-    service_o   <= m_service;
-    
+
      -- video VGA offsets
     HOFFS <=   osm_control_i(C_MENU_GAPLUS_H16)  &
                osm_control_i(C_MENU_GAPLUS_H8)   &

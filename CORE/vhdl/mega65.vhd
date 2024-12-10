@@ -236,7 +236,6 @@ signal clk_24_rst             : std_logic;
 -- main_clk (MiSTer core's clock)
 ---------------------------------------------------------------------------------------------
 
-signal main_service        : std_logic;
 signal main_video_red      : std_logic_vector(3 downto 0);   
 signal main_video_green    : std_logic_vector(3 downto 0);
 signal main_video_blue     : std_logic_vector(3 downto 0);
@@ -264,34 +263,35 @@ constant C_MENU_VGA_15KHZHSVS : natural := 24;
 constant C_MENU_VGA_15KHZCS   : natural := 25;
 
 -- Dipswitch A
-constant C_MENU_DSWA_0        : natural := 52; -- Lives A
-constant C_MENU_DSWA_1        : natural := 53; -- Lives B
-constant C_MENU_DSWA_2        : natural := 54; -- Coin A 1
-constant C_MENU_DSWA_3        : natural := 55; -- Coin A 2
-constant C_MENU_DSWA_4        : natural := 56; -- Demo Sounds
-constant C_MENU_DSWA_5        : natural := 57; -- Unused
-constant C_MENU_DSWA_6        : natural := 58; -- Coin B
-constant C_MENU_DSWA_7        : natural := 59; -- Coin B
+constant C_MENU_DSWA_0        : natural := 50; -- Lives A
+constant C_MENU_DSWA_1        : natural := 51; -- Lives B
+constant C_MENU_DSWA_2        : natural := 52; -- Coin A 1
+constant C_MENU_DSWA_3        : natural := 53; -- Coin A 2
+constant C_MENU_DSWA_4        : natural := 54; -- Demo Sounds
+constant C_MENU_DSWA_5        : natural := 55; -- Unused
+constant C_MENU_DSWA_6        : natural := 56; -- Coin B
+constant C_MENU_DSWA_7        : natural := 57; -- Coin B
 
 -- Dipswitch B
-constant C_MENU_DSWB_0        : natural := 60; -- Service Mode
-constant C_MENU_DSWB_1        : natural := 61; -- Difficulty A
-constant C_MENU_DSWB_2        : natural := 62; -- Difficulty B
-constant C_MENU_DSWB_3        : natural := 63; -- Difficulty C
-constant C_MENU_DSWB_4        : natural := 64; -- Round Advance
-constant C_MENU_DSWB_5        : natural := 65; -- Bonus Life
-constant C_MENU_DSWB_6        : natural := 66; -- Bonus Life
-constant C_MENU_DSWB_7        : natural := 67; -- Bonus Life
+constant C_MENU_DSWB_0        : natural := 58; -- Service Mode
+constant C_MENU_DSWB_1        : natural := 59; -- Difficulty A
+constant C_MENU_DSWB_2        : natural := 60; -- Difficulty B
+constant C_MENU_DSWB_3        : natural := 61; -- Difficulty C
+constant C_MENU_DSWB_4        : natural := 62; -- Round Advance
+constant C_MENU_DSWB_5        : natural := 63; -- Bonus Life
+constant C_MENU_DSWB_6        : natural := 64; -- Bonus Life
+constant C_MENU_DSWB_7        : natural := 65; -- Bonus Life
 
 -- Dipswitch C
-constant C_MENU_DSWC_0        : natural := 68; -- not used
-constant C_MENU_DSWC_1        : natural := 69; -- not used
-constant C_MENU_DSWC_2        : natural := 70; -- not used
-constant C_MENU_DSWC_3        : natural := 71; -- not used
-constant C_MENU_DSWC_4        : natural := 72; -- not used
-constant C_MENU_DSWC_5        : natural := 73; -- not used
-constant C_MENU_DSWC_6        : natural := 74; -- Service button
-constant C_MENU_DSWC_7        : natural := 75; -- Cabinet
+constant C_MENU_DSWC_0        : natural := 66; -- not used
+/*
+constant C_MENU_DSWC_1        : natural := 67; -- not used
+constant C_MENU_DSWC_2        : natural := 68; -- not used
+constant C_MENU_DSWC_3        : natural := 69; -- not used
+constant C_MENU_DSWC_4        : natural := 70; -- not used
+constant C_MENU_DSWC_5        : natural := 71; -- not used
+constant C_MENU_DSWC_6        : natural := 72; -- Service button
+constant C_MENU_DSWC_7        : natural := 58; -- Cabinet*/
 
 
 signal div          : std_logic_vector(2 downto 0);
@@ -397,23 +397,23 @@ begin
  
    main_qnice_dev_id_i <= qnice_dev_id_i;
    
-   dsw_a_i <= main_osm_control_i(C_MENU_DSWA_7) & -- Life A
-              main_osm_control_i(C_MENU_DSWA_6) & -- Life B
-              main_osm_control_i(C_MENU_DSWA_5) & -- Coin A 1
-              main_osm_control_i(C_MENU_DSWA_4) & -- Coin A 2
-              main_osm_control_i(C_MENU_DSWA_3) & -- Demo Sounds
+   dsw_a_i <= main_osm_control_i(C_MENU_DSWA_0) & -- Life A
+              main_osm_control_i(C_MENU_DSWA_1) & -- Life B
+              main_osm_control_i(C_MENU_DSWA_2) & -- Coin A 1
+              main_osm_control_i(C_MENU_DSWA_3) & -- Coin A 2
+              main_osm_control_i(C_MENU_DSWA_4) & -- Demo Sounds
                                             '0' & -- Unused
-              main_osm_control_i(C_MENU_DSWA_1) & -- Coin B 1
-              main_osm_control_i(C_MENU_DSWA_0);  -- Coin B 2
+              main_osm_control_i(C_MENU_DSWA_6) & -- Coin B 1
+              main_osm_control_i(C_MENU_DSWA_7);  -- Coin B 2
    
-   dsw_b_i <= main_osm_control_i(C_MENU_DSWB_7) & -- Service Mode
-              main_osm_control_i(C_MENU_DSWB_6) & -- Difficulty A
-              main_osm_control_i(C_MENU_DSWB_5) & -- Difficulty B
-              main_osm_control_i(C_MENU_DSWB_4) & -- Difficulty C
-              main_osm_control_i(C_MENU_DSWB_3) & -- Round Advance
-              main_osm_control_i(C_MENU_DSWB_2) & -- Bonus A
-              main_osm_control_i(C_MENU_DSWB_1) & -- Bonus B
-              main_osm_control_i(C_MENU_DSWB_0);  -- Bonus C
+   dsw_b_i <= main_osm_control_i(C_MENU_DSWB_0) & -- Service Mode
+              main_osm_control_i(C_MENU_DSWB_1) & -- Difficulty A
+              main_osm_control_i(C_MENU_DSWB_2) & -- Difficulty B
+              main_osm_control_i(C_MENU_DSWB_3) & -- Difficulty C
+              main_osm_control_i(C_MENU_DSWB_4) & -- Round Advance
+              main_osm_control_i(C_MENU_DSWB_5) & -- Bonus A
+              main_osm_control_i(C_MENU_DSWB_6) & -- Bonus B
+              main_osm_control_i(C_MENU_DSWB_7);  -- Bonus C
               
    dsw_c_i <=                               '0' &
                                             '0' &
@@ -421,8 +421,9 @@ begin
                                             '0' &
                                             '0' &
                                             '0' &
-              main_service                      &     -- Service Button
-              not main_osm_control_i(C_MENU_DSWC_0);  -- Cabinet
+                                            '0' & -- Service Mode
+                                            '1';  -- Cabinet - upright only
+           
   
   
    ---------------------------------------------------------------------------------------------
@@ -494,7 +495,6 @@ begin
          dsw_a_i              => dsw_a_i,
          dsw_b_i              => dsw_b_i,
          dsw_c_i              => dsw_c_i,
-         service_o            => main_service,
          
          qnice_dev_id_o       => main_qnice_dev_id_i
          

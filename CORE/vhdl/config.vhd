@@ -86,10 +86,9 @@ constant SCR_WELCOME : string :=
    "By sy2002 and MJoergen in 2024\n"     &
    "\n\n"                                 &
    "Credits  : Press '5' or '6'\n"        &
-   "Service  : S\n"                       & 
    "Start    : Press '1' or '2'\n"        &
-   "Controls : Joystick /Arrows\n"        &
-   "Fire     : Joy button / A\n"          &
+   "Controls : Joystick or arrows\n"      &
+   "Fire     : Joy button or 'A'\n"       &
    "\n\n    Press Space to continue.\n"; 
    
 constant HELP_1 : string :=
@@ -319,7 +318,7 @@ constant OPTM_S_SAVING     : string := "<Saving>";          -- the internal writ
 --             Do use a lower case \n. If you forget one of them or if you use upper case, you will run into undefined behavior.
 --          2. Start each line that contains an actual menu item (multi- or single-select) with a Space character,
 --             otherwise you will experience visual glitches.
-constant OPTM_SIZE         : natural := 71;  -- amount of items including empty lines:
+constant OPTM_SIZE         : natural := 70;  -- amount of items including empty lines:
                                              -- needs to be equal to the number of lines in OPTM_ITEMS and amount of items in OPTM_GROUPS
                                              -- IMPORTANT: If SAVE_SETTINGS is true and OPTM_SIZE changes: Make sure to re-generate and
                                              -- and re-distribute the config file. You can make a new one using M2M/tools/make_config.sh
@@ -330,7 +329,7 @@ constant OPTM_DX           : natural := 23;
 constant OPTM_DY           : natural := 23;
 
 constant OPTM_ITEMS        : string :=
-   " Galaga Plus\n"         &
+   " Gaplus\n"              &
    "\n"                     &
    " Flip joystick ports\n" &
    "\n"                     &
@@ -396,7 +395,6 @@ constant OPTM_ITEMS        : string :=
    "    Bonus Life A\n"     &
    "    Bonus Life B\n"     &
    "    Bonus Life C\n"     &
-   "    Cabinet\n"          &
    "\n"                     &
    " Back to main menu\n"   &
    "\n"                     &
@@ -445,14 +443,14 @@ constant OPTM_G_FLIPJ          : integer := 31;
 constant OPTM_G_SOFTW          : integer := 32;
 
 -- Shift screen vertical/horizontal offsets
-constant OPTM_G_GAPUSS_H1      : integer := 33;        
-constant OPTM_G_GAPUSS_H2      : integer := 34;    
-constant OPTM_G_GAPUSS_H4      : integer := 35;    
-constant OPTM_G_GAPUSS_H8      : integer := 36;    
-constant OPTM_G_GAPUSS_H16     : integer := 37;
-constant OPTM_G_GAPUSS_V1      : integer := 38;        
-constant OPTM_G_GAPUSS_V2      : integer := 39;    
-constant OPTM_G_GAPUSS_V4      : integer := 40; 
+constant OPTM_G_GAP_H1         : integer := 33;        
+constant OPTM_G_GAP_H2         : integer := 34;    
+constant OPTM_G_GAP_H4         : integer := 35;    
+constant OPTM_G_GAP_H8         : integer := 36;    
+constant OPTM_G_GAP_H16        : integer := 37;
+constant OPTM_G_GAP_V1         : integer := 38;        
+constant OPTM_G_GAP_V2         : integer := 39;    
+constant OPTM_G_GAP_V4         : integer := 40; 
 
 -- !!! DO NOT TOUCH !!!
 type OPTM_GTYPE is array (0 to OPTM_SIZE - 1) of integer range 0 to 2**OPTM_GTC- 1;
@@ -491,19 +489,19 @@ constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,     
                                              OPTM_G_SUBMENU, 
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,                            
                                              OPTM_G_LINE,                                              
-                                             OPTM_G_GAPUSS_H1  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GAPUSS_H2  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GAPUSS_H4  + OPTM_G_SINGLESEL, 
-                                             OPTM_G_GAPUSS_H8  + OPTM_G_SINGLESEL,
-                                             OPTM_G_GAPUSS_H16 + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAP_H1  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_H2  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_H4  + OPTM_G_SINGLESEL, 
+                                             OPTM_G_GAP_H8  + OPTM_G_SINGLESEL,
+                                             OPTM_G_GAP_H16 + OPTM_G_SINGLESEL,
                                              OPTM_G_LINE,                                               -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                             -- Close submenu / back to main menu                           
                                              OPTM_G_SUBMENU,                                           
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,                            
                                              OPTM_G_LINE,                                              
-                                             OPTM_G_GAPUSS_v1  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GAPUSS_v2  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GAPUSS_v4  + OPTM_G_SINGLESEL, 
+                                             OPTM_G_GAP_v1  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_v2  + OPTM_G_SINGLESEL,                  
+                                             OPTM_G_GAP_v4  + OPTM_G_SINGLESEL, 
                                              OPTM_G_LINE,                                               -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                             -- Close submenu / back to main menu
                                              OPTM_G_LINE,                                              
@@ -525,8 +523,7 @@ constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,     
                                              OPTM_G_GAP_DSWB4  + OPTM_G_SINGLESEL,
                                              OPTM_G_GAP_DSWB5  + OPTM_G_SINGLESEL,
                                              OPTM_G_GAP_DSWB6  + OPTM_G_SINGLESEL,  
-                                             OPTM_G_GAP_DSWB7  + OPTM_G_SINGLESEL,                  
-                                             OPTM_G_GAP_DSWC0  + OPTM_G_SINGLESEL,                                         
+                                             OPTM_G_GAP_DSWB7  + OPTM_G_SINGLESEL,                                    
                                              OPTM_G_LINE,                                             -- Line
                                              OPTM_G_CLOSE + OPTM_G_SUBMENU,                           -- Close submenu / back to main menu
 											 OPTM_G_LINE,                                             -- Line
