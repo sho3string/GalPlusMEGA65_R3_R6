@@ -1,4 +1,4 @@
-Version 0.5.0 - December, 12 2024
+Version 0.5.0 - December, 15 2024
 =================================
 
 Gaplus for the MEGA65 version 0.5.0 is based on this version 2.0.0 of the MiSTer2MEGA65 framework by MJoergen & sy2002.
