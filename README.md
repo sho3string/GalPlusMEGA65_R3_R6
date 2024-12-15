@@ -1,76 +1,41 @@
-MiSTer2MEGA65
-=============
+Gaplus for MEGA65
+=================
 
-MiSTer2MEGA65 is a framework to simplify porting MiSTer cores to the MEGA65.
+Gaplus, also known as Galaga 3, a classic arcade shooter that continues the legendary space battle saga.  
+Originally released in the 1980s, Gaplus invites players to pilot their spacecraft through waves of alien  
+invaders in a dynamic and challenging environment.
 
-![Title Image](doc/wiki/assets/MiSTer2MEGA65-Title.png)
+In Gaplus you take control of a lone starfighter in a mission to fend off the relentless alien forces. This game builds  
+upon its predecessors with new mechanics, enemies, and power-ups, offering a fresh yet nostalgic experience for  
+fans of the series. With enhanced graphics, faster gameplay, and innovative features, Gaplus ensures hours of   
+thrilling action.
 
-Learn more by
-[watching this YouTube video](https://youtu.be/9Ib7z64z9N4)
-and get started by reading the
-[MiSTer2MEGA65 Wiki](https://github.com/sy2002/MiSTer2MEGA65/wiki).
+This core is based on the
+[MrX-8B](https://github.com/MrX-8B/MiSTer-Arcade-Gaplus)
+Gaplus core which
+itself is based on the wonderful work of [MrX-8B](AUTHORS).
 
-TL;DR
------
+The core uses the [MiSTer2MEGA65](https://github.com/sy2002/MiSTer2MEGA65)
+framework and [QNICE-FPGA](https://github.com/sy2002/QNICE-FPGA) for
+FAT32 support (loading ROMs, mounting disks) and for the
+on-screen-menu.
 
-1. Scroll up and press the "Use this template" button to start a new
-   MiSTer2MEGA65 project. Then fork the MiSTer core you want to port
-   and make it a Git submodule of your newly created project.
+How to install the Gaplus core on your MEGA65
+---------------------------------------------
+Download the powershell or shell script depending on your preferred platform ( Windows, Linux/Unix and MacOS supported )
 
-2. Wrap the MiSTer core inside `CORE/vhdl/main.vhd` while
-   adjusting the clocks in `CORE/vhdl/clk.vhd`. Provide RAMs, ROMs and other
-   devices in `CORE/vhdl/mega65.vhd` and wire everything correctly.
+Run the script: a) First extract all the files within the zip to any working folder.
 
-3. Configure your core's behavior, including how the start screen looks like,
-   what ROMs should be loaded (and where to), the abilities of the
-   <kbd>Help</kbd> menu and more in `CORE/vhdl/config.vhd` and in
-   `CORE/vhdl/globals.vhd`.
+b) Copy the powershell or shell script to the same folder and execute it to create the following files.
 
-**DONE** your core is ported to MEGA65! :-)
+**Ensure the following files are present and sizes are correct**
+![image](https://github.com/user-attachments/assets/a41b753a-3d0b-4d9a-b80b-e201e7ad58fb)  
+For Windows run the script via PowerShell gaplus_rom_installer.ps1  
+Simply select the script and with the right mouse button select the Run with Powershell  
+![image](https://github.com/user-attachments/assets/ba35d495-18dd-4794-8dcc-2961ad8e15c2)  
+For Linux/Unix/MacOS execute ./gaplus_rom_installer.sh  
 
-*Obviously, this is a shameless exaggeration of how easy it is to work with
-MiSTer2MEGA65, but you get the gist of it.*
+The script will automatically create the /arcade/gaplus folder where the generated ROMs will reside.  
 
-Getting started, detailed documentation and support
----------------------------------------------------
+Copy or move the arcade/gng folder to your MEGA65 SD card: You may either use the bottom SD card tray of the MEGA65 or the tray at the backside of the computer (the latter has precedence over the first).  
 
-* Please visit our official
-  [MiSTer2MEGA65 Wiki](https://github.com/sy2002/MiSTer2MEGA65/wiki). It
-  contains everything you ever wanted to know about M2M, including a
-  "Getting Started" tutorial and a step-by-step guide to port a MiSTer core.
-  You might whant to start your journey
-  [here](https://github.com/sy2002/MiSTer2MEGA65/wiki/1.-What-is-MiSTer2MEGA65)
-  and then follow the reading track that is pointed out in the
-  respective chapters.
-
-* Post a question in our
-  [Discussion Forum](https://github.com/sy2002/MiSTer2MEGA65/discussions).
-
-Status of the framework
------------------------
-
-**The MiSTer2MEGA (M2M) framework is stable and ready for being used.**
-The first production quality core that is based on M2M is the
-[Commodore 64 for MEGA65](https://github.com/MJoergen/C64MEGA65).
-Additionally there is already
-[a decent amount of cores](https://sy2002.github.io/m65cores/)
-that are based on the M2M framework. Head to the
-[Alternate MEGA65 cores](https://sy2002.github.io/m65cores/)
-website to learn more.
-
-The documentation of the M2M framework needs quite some more work before
-we will be able to call it "good enough" - let alone complete:
-[MiSTer2MEGA65 Wiki](https://github.com/sy2002/MiSTer2MEGA65/wiki)
-
-This should not discourage you from using the MiSTer2MEGA65 framework right
-now to port MiSTer cores and other cores to the MEGA65. You can use the
-source code of the
-[Commodore 64 for MEGA65](https://github.com/MJoergen/C64MEGA65)
-as your "user's manual" and "reference handbook" for the M2M framework.
-
-Additionally to helping yourself with the Wiki (and the turorials there) and
-the C64 source code as your "user's manual" and "reference handbook": Post
-your question in the
-[Discussion Forum](https://github.com/sy2002/MiSTer2MEGA65/discussions)
-and join the
-[friendly MEGA65 community on Discord](https://discord.com/channels/719326990221574164/1177364456896999485).
