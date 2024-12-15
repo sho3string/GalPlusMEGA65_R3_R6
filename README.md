@@ -37,5 +37,5 @@ For Linux/Unix/MacOS execute ./gaplus_rom_installer.sh
 
 The script will automatically create the /arcade/gaplus folder where the generated ROMs will reside.  
 
-Copy or move the arcade/gng folder to your MEGA65 SD card: You may either use the bottom SD card tray of the MEGA65 or the tray at the backside of the computer (the latter has precedence over the first).  
+Copy or move "arcade/gaplus" to your MEGA65 SD card: You may either use the bottom SD card tray of the MEGA65 or the tray at the backside of the computer (the latter has precedence over the first).  
 
